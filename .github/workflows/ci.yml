@@ -80,17 +80,30 @@ jobs:
       - name: Execute Linux candidate
         shell: bash
         run: |
-          mkdir ./dist/smoke
-          tar -xzf ./dist/git-casebook_0.1.0_linux_amd64.tar.gz -C ./dist/smoke
-          test "$(./dist/smoke/git-casebook --version)" = "0.1.0"
-          git -c init.defaultBranch=main init ./dist/synthetic-source
-          git -C ./dist/synthetic-source config user.name "Synthetic Test"
-          git -C ./dist/synthetic-source config user.email "synthetic@example.invalid"
-          printf 'synthetic\n' > ./dist/synthetic-source/README.md
-          git -C ./dist/synthetic-source add README.md
-          git -C ./dist/synthetic-source commit -m "synthetic fixture"
-          ./dist/smoke/git-casebook investigate ./dist/synthetic-source --case ./dist/version.case
-          python3 -c 'import json; assert json.load(open("./dist/version.case/case.json", encoding="utf-8"))["tool"]["version"] == "0.1.0"'
+          smoke_dir="$(mktemp -d)"
+          trap 'rm -rf "$smoke_dir"' EXIT
+          tar -xzf ./dist/git-casebook_0.1.0_linux_amd64.tar.gz -C "$smoke_dir"
+          test "$("$smoke_dir/git-casebook" --version)" = "0.1.0"
+          git -c init.defaultBranch=main init "$smoke_dir/synthetic-source"
+          git -C "$smoke_dir/synthetic-source" config user.name "Synthetic Test"
+          git -C "$smoke_dir/synthetic-source" config user.email "synthetic@example.invalid"
+          printf 'synthetic\n' > "$smoke_dir/synthetic-source/README.md"
+          git -C "$smoke_dir/synthetic-source" add README.md
+          git -C "$smoke_dir/synthetic-source" commit -m "synthetic fixture"
+          "$smoke_dir/git-casebook" investigate "$smoke_dir/synthetic-source" --case "$smoke_dir/version.case"
+          python3 -c 'import json, sys; assert json.load(open(sys.argv[1], encoding="utf-8"))["tool"]["version"] == "0.1.0"' "$smoke_dir/version.case/case.json"
+
+      - name: Verify publishable asset boundary
+        shell: bash
+        run: |
+          mapfile -t assets < <(pwsh -NoProfile -File ./scripts/verify-release.ps1 -Version v0.1.0 -ListPublishAssets)
+          test "${#assets[@]}" -eq 6
+          for asset in "${assets[@]}"; do
+            test -f "$asset"
+          done
+          test ! -e ./dist/smoke
+          test "$(find ./dist -mindepth 1 -maxdepth 1 -type f | wc -l)" -eq 6
+          test -z "$(find ./dist -mindepth 1 -maxdepth 1 ! -type f -print -quit)"
 
   linux-boundaries:
     name: Linux boundary checks
