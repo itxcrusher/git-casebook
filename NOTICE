@@ -1,0 +1,9 @@
+repo-rehab
+Copyright 2026 Muhammad Hassaan Javed
+
+This product includes software from go.yaml.in/yaml/v3.
+Copyright 2011-2016 Canonical Ltd.
+
+The dependency contains files under the MIT License and files under the Apache
+License, Version 2.0. Dependency license and attribution texts are retained in
+THIRD_PARTY_NOTICES.md.
