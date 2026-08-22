@@ -9,7 +9,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/itxcrusher/repo-rehab/internal/model"
+	"github.com/itxcrusher/git-casebook/internal/model"
 )
 
 func Render(c model.Case) []byte {

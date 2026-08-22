@@ -1,98 +1,140 @@
-# repo-rehab
+# GitCasebook
 
-`repo-rehab` is a local-first forensic Git CLI for uncertain repository history.
-It creates an inspectable case before anyone modifies, executes, rewrites, or
-publishes inherited code.
+**Deterministic Git forensics for repositories you didn't build.**
 
-Status: **pre-release; v0.1 under development**. The repository name is a working
-implementation namespace, not a final brand.
+GitCasebook preserves uncertain Git sources, proves how their histories relate,
+and produces a collision-safe archival plan before you modify or execute
+anything.
+
+**Preserve. Compare. Prove. Plan.**
+
+Status: **pre-release; v0.1 under development**. No release has been published.
 
 ## The problem
 
 An inherited project may exist in a developer account, an organization mirror,
 an abandoned fork, and several branches that disagree about the latest state.
-Default-branch comparisons do not prove which objects or refs would be lost.
-Running the project before establishing trust can also trigger hooks, filters,
-package scripts, credentials, or network access.
+Default-branch comparisons cannot prove which commits, objects, tags, or unusual
+refs would be lost. Running the project before establishing trust can also
+trigger repository-controlled behavior.
 
-## The v0.1 promise
-
-Given one or more uncertain Git repositories, create a local forensic case that:
-
-- preserves every source as a bare mirror without checkout;
-- verifies refs, reachable objects, integrity, and completeness;
-- classifies pairwise history as `EXACT`, `SUBSET`, `SUPERSET`, `DIVERGED`,
-  `DISJOINT`, or fail-closed `UNKNOWN`;
-- proposes reversible, source-namespaced archival refs and withholds collisions;
-- records closed safety gates and uncertainty; and
-- emits canonical JSON evidence plus a generated Markdown report.
-
-Short form: **preserve + compare + prove + plan**.
-
-## What v0.1 does not do
-
-It does not execute application code, install inherited dependencies, initialize
-submodules, fetch Git LFS bodies, modernize code, rewrite history, push refs,
-publish repositories, scan licenses/secrets/CVEs, or make ownership and legal
-conclusions. Those capabilities are absent, not silently enabled.
-
-## Requirements
-
-- Windows or Linux;
-- a native Git executable with the capabilities used by `git clone --mirror`,
-  `git fsck`, `git for-each-ref`, `git rev-list`, and `git cat-file`;
-- Go 1.27.0 to build from source.
-
-The CLI records the exact Git and tool versions in every case. Go 1.27.0 was the
-current stable Go release when this baseline was created; see the official
-[Go release history](https://go.dev/doc/devel/release).
-
-## Build and test
+GitCasebook handles the earlier forensic step:
 
 ```text
-go build ./cmd/repo-rehab
-go test ./...
-go vet ./...
+uncertain repositories
+    -> preserve sources without checkout
+    -> prove all-ref Git relationships
+    -> plan canonical archival refs
+    -> produce an inspectable forensic case
+    -> then archaeology or modernization may begin
 ```
 
-No package manager, code generator, or release tool is required.
-
-## Five-minute example
+## One-command investigation
 
 ```text
-repo-rehab investigate old-company-repo developer-fork org-mirror --case review.case
+git-casebook investigate old-company-repo developer-copy organization-copy --case review.case
 ```
 
-A generated synthetic report can summarize:
+When the executable is on `PATH`, Git's ordinary dashed-command discovery also
+supports:
 
 ```text
-developer-fork SUPERSET old-company-repo
-developer-fork SUPERSET org-mirror
+git casebook investigate old-company-repo developer-copy organization-copy --case review.case
+```
+
+A synthetic case might report:
+
+```text
+developer-copy  SUPERSET  organization-copy
 2 unique commits
 3 source-only refs
 0 archival mapping collisions
 ```
 
-The actual machine output is written below `review.case/`; the command never
-pushes its proposed plan.
+The command writes canonical evidence below `review.case/`. It does not push or
+apply the proposed archival plan.
 
-## Resumable commands
+## What GitCasebook guarantees
+
+For supported complete Git sources, v0.1:
+
+- preserves each source as a bare mirror without checkout;
+- inventories all relevant refs and all objects reachable from them;
+- records integrity, shallow, partial, submodule, and LFS evidence;
+- classifies every source pair as `EXACT`, `SUBSET`, `SUPERSET`, `DIVERGED`,
+  `DISJOINT`, or fail-closed `UNKNOWN`;
+- emits evidence supporting shared and source-only commit/object claims;
+- proposes deterministic, reversible, source-namespaced archival refs;
+- withholds colliding mappings instead of overwriting them; and
+- produces versioned JSON truth plus a derived Markdown report.
+
+## What it deliberately does not do
+
+v0.1 does not execute application code, install inherited dependencies, check
+out worktrees, initialize submodules, fetch Git LFS bodies, modernize code,
+rewrite history, push refs, publish repositories, scan licenses/secrets/CVEs, or
+make ownership and legal conclusions. Those capabilities are absent, not
+silently enabled.
+
+GitCasebook is not a code chatbot, specification extractor, dependency graph,
+or refactoring engine. Agents and later archaeology tools can consume its
+evidence after repository identity and provenance have been established.
+
+## Safety model
+
+Repository inputs are untrusted. GitCasebook invokes native Git directly with
+explicit argument vectors, isolated system/global configuration, credentials
+and prompts disabled, empty hooks/templates, replacement traversal disabled,
+bounded output, and timeouts. Acquisition is the only network-capable stage.
+Offline analysis uses an explicit command allowlist and has no checkout,
+mutation, or remote-write operation.
+
+This is not an operating-system sandbox. Native Git still parses untrusted
+objects. Use separate OS isolation for deliberately hostile inputs. Review the
+[security policy](SECURITY.md) and [safety model](docs/safety-model.md).
+
+## Installation
+
+GitCasebook requires a supported native Git executable. The v0.1.0 source
+installation path is prepared as:
 
 ```text
-repo-rehab case init --case review.case
-repo-rehab source add --case review.case old-company-repo
-repo-rehab source add --case review.case developer-fork
-repo-rehab preserve --case review.case
-repo-rehab inspect --case review.case
-repo-rehab compare --case review.case
-repo-rehab refs plan --case review.case
-repo-rehab verify --case review.case
-repo-rehab report --case review.case
+go install github.com/itxcrusher/git-casebook/cmd/git-casebook@v0.1.0
+```
+
+That exact command becomes available only after the private repository is made
+public and `v0.1.0` is tagged. During pre-release development, clone the
+repository and run:
+
+```text
+go install ./cmd/git-casebook
+```
+
+Supported and tested targets for publication are Windows, Linux, and macOS. See
+[versioning and compatibility](docs/versioning.md) for the 0.x policy.
+
+## Commands
+
+The guided `investigate` command creates or resumes a case, preserves sources,
+switches to offline analysis, inventories and compares them, plans archival
+refs, verifies evidence, and generates the report.
+
+Resumable lifecycle commands are also available:
+
+```text
+git-casebook case init --case review.case
+git-casebook source add --case review.case old-company-repo
+git-casebook source add --case review.case developer-copy
+git-casebook preserve --case review.case
+git-casebook inspect --case review.case
+git-casebook compare --case review.case
+git-casebook refs plan --case review.case
+git-casebook verify --case review.case
+git-casebook report --case review.case
 ```
 
 Use `--json` for machine-readable command results and `--json-errors` for
-structured errors. Successful fail-closed evidence can contain `UNKNOWN`; it is
-not converted into a guessed relationship.
+structured errors. See the [command reference](docs/cli.md) for exit semantics.
 
 ## Case layout
 
@@ -110,22 +152,35 @@ review.case/
 `-- report.md
 ```
 
-`case.json` is canonical machine truth. Policy is human-authored YAML, events and
-findings are append-only JSONL, large evidence is content-addressed, and
-`report.md` is always a derivative.
+`case.json` is canonical machine truth. Policy is human-authored YAML, events
+and findings are append-only JSONL, large evidence is content-addressed, and
+`report.md` is always derived.
 
-## Safety model
+## Relationship meanings
 
-Repository inputs are untrusted. Git runs through direct process argument vectors
-with isolated system/global configuration, credentials and prompts disabled,
-empty hooks/templates, replacement refs disabled during traversal, bounded
-output, and timeouts. Acquisition is the only network-capable stage. Offline
-analysis uses an explicit command allowlist and has no checkout, mutation, or
-remote-write operation.
+GitCasebook compares commit and object sets reachable from all included refs,
+not just default branches:
 
-This is not a sandbox. A vulnerability in the installed Git executable or host
-operating system is outside the v0.1 proof. Review [SECURITY.md](SECURITY.md) and
-the [safety model](docs/safety-model.md) before using hostile inputs.
+| Relationship | Meaning for source A relative to source B |
+| --- | --- |
+| `EXACT` | Reachable commit and object sets are equal |
+| `SUPERSET` | A properly contains B's reachable commit and object sets |
+| `SUBSET` | A's reachable commit and object sets are properly contained by B |
+| `DIVERGED` | Sources share reachable commits but neither contains the other |
+| `DISJOINT` | Sources share no reachable commit |
+| `UNKNOWN` | Evidence is incomplete, corrupt, incompatible, or otherwise untrusted |
+
+`UNKNOWN` is a valid fail-closed outcome, not an error concealed as certainty.
+
+## Current limitations
+
+- Authenticated remote acquisition has no dedicated credential workflow yet.
+- Git SHA-1 and SHA-256 repositories are inventoried, but incompatible object
+  formats cannot receive a confident cross-format relationship.
+- LFS pointer/config state is reported; LFS bodies are not fetched.
+- Submodules are reported; their URLs are not followed.
+- Ref plans are proposals only and are never pushed.
+- v0.1 evidence schemas may evolve under the documented 0.x policy.
 
 ## Evidence and design
 
@@ -134,15 +189,16 @@ the [safety model](docs/safety-model.md) before using hostile inputs.
 - [Architecture](docs/architecture.md)
 - [Safety and trust boundaries](docs/safety-model.md)
 - [Synthetic fixture contract](docs/fixtures.md)
-- [Dependency and license record](docs/dependencies.md)
+- [Dependencies and licenses](docs/dependencies.md)
+- [Versioning and compatibility](docs/versioning.md)
 
 ## Contributing
 
-Contributions use Developer Certificate of Origin 1.1 sign-off and do not require
-a CLA. See [CONTRIBUTING.md](CONTRIBUTING.md), [DCO](DCO), and
+Contributions use Developer Certificate of Origin 1.1 sign-off and do not
+require a CLA. See [CONTRIBUTING.md](CONTRIBUTING.md), [DCO](DCO), and
 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) and
-[NOTICE](NOTICE).
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE),
+[NOTICE](NOTICE), and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

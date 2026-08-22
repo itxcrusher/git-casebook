@@ -22,7 +22,7 @@ CLI
 
 | Package | Responsibility |
 | --- | --- |
-| `cmd/repo-rehab` | Argument parsing, exit codes, human/JSON output |
+| `cmd/git-casebook` | Argument parsing, exit codes, human/JSON output |
 | `internal/app` | Resumable Level 0-2 workflow orchestration |
 | `internal/casefile` | YAML/JSON/JSONL persistence, schema and semantic validation |
 | `internal/gitexec` | Direct native-Git invocation, config isolation, command classes, limits |
@@ -83,5 +83,6 @@ wall-clock fields are excluded from semantic fingerprints. Content identity,
 tool/Git versions, policy semantics, relationships, gates, and ref plans remain
 inside the semantic projection.
 
-The same code and fixture corpus run on GitHub-hosted Windows and Linux runners.
-Linux CI additionally checks an OS-network-namespace run and symlink confinement.
+The same code and fixture corpus run on GitHub-hosted Windows, Linux, and macOS
+runners. Linux CI additionally checks an OS-network-namespace run and symlink
+confinement.

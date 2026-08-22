@@ -14,8 +14,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/itxcrusher/repo-rehab/internal/model"
-	productschema "github.com/itxcrusher/repo-rehab/schema"
+	"github.com/itxcrusher/git-casebook/internal/model"
+	productschema "github.com/itxcrusher/git-casebook/schema"
 	"github.com/santhosh-tekuri/jsonschema/v6"
 	"go.yaml.in/yaml/v3"
 )
@@ -220,11 +220,11 @@ func ValidateSchema(document []byte) error {
 		}
 		compiler := jsonschema.NewCompiler()
 		compiler.AssertFormat()
-		if err := compiler.AddResource("urn:repository-rehabilitation:case:1.0.0", schemaDocument); err != nil {
+		if err := compiler.AddResource("urn:git-casebook:case:1.0.0", schemaDocument); err != nil {
 			compiledSchemaErr = fmt.Errorf("load embedded schema: %w", err)
 			return
 		}
-		compiledSchema, compiledSchemaErr = compiler.Compile("urn:repository-rehabilitation:case:1.0.0")
+		compiledSchema, compiledSchemaErr = compiler.Compile("urn:git-casebook:case:1.0.0")
 		if compiledSchemaErr != nil {
 			compiledSchemaErr = fmt.Errorf("compile embedded schema: %w", compiledSchemaErr)
 		}

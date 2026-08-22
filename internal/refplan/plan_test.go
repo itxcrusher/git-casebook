@@ -3,7 +3,7 @@ package refplan
 import (
 	"testing"
 
-	"github.com/itxcrusher/repo-rehab/internal/model"
+	"github.com/itxcrusher/git-casebook/internal/model"
 )
 
 func TestCollisionWithholdsDestinations(t *testing.T) {

@@ -16,13 +16,13 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/itxcrusher/repo-rehab/internal/evidence"
-	"github.com/itxcrusher/repo-rehab/internal/gitexec"
-	"github.com/itxcrusher/repo-rehab/internal/model"
-	"github.com/itxcrusher/repo-rehab/internal/preserve"
+	"github.com/itxcrusher/git-casebook/internal/evidence"
+	"github.com/itxcrusher/git-casebook/internal/gitexec"
+	"github.com/itxcrusher/git-casebook/internal/model"
+	"github.com/itxcrusher/git-casebook/internal/preserve"
 )
 
-const extensionNamespace = "io.github.itxcrusher.repo-rehab"
+const extensionNamespace = "io.github.itxcrusher.git-casebook"
 
 type Data struct {
 	Commits             []string
@@ -204,7 +204,7 @@ func Analyze(ctx context.Context, runner *gitexec.Runner, artifacts evidence.Sto
 	}
 	evidenceItem := model.EvidenceItem{
 		EvidenceID: "evidence-inventory-" + declared.SourceID,
-		Producer:   "repo-rehab", Method: "native-git-ref-integrity-reachability-inventory",
+		Producer:   "git-casebook", Method: "native-git-ref-integrity-reachability-inventory",
 		Inputs:     []string{"source:" + declared.SourceID, "all-policy-included-refs"},
 		ObservedAt: time.Now().UTC().Format(time.RFC3339Nano), OutputFingerprint: source.SourceFingerprint,
 		RawArtifact: &indexPath, VerificationState: verification,

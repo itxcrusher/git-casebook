@@ -1,7 +1,8 @@
 # Third-Party Notices
 
-The following notices cover third-party Go modules included in builds of this
-project. Versions are pinned in `go.mod` and `go.sum`.
+The following notices cover third-party Go modules linked into production builds
+and retain the `regexp2` notice conservatively because it is selected in the
+module graph. Versions are pinned by `go.mod` and `go.sum`.
 
 ## github.com/santhosh-tekuri/jsonschema/v6 v6.0.3
 

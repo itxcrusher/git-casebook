@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/itxcrusher/repo-rehab/internal/evidence"
-	"github.com/itxcrusher/repo-rehab/internal/gitexec"
-	"github.com/itxcrusher/repo-rehab/internal/model"
+	"github.com/itxcrusher/git-casebook/internal/evidence"
+	"github.com/itxcrusher/git-casebook/internal/gitexec"
+	"github.com/itxcrusher/git-casebook/internal/model"
 )
 
 var scpLocator = regexp.MustCompile(`^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:[^\s]+$`)

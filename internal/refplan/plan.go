@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/itxcrusher/repo-rehab/internal/evidence"
-	"github.com/itxcrusher/repo-rehab/internal/gitexec"
-	"github.com/itxcrusher/repo-rehab/internal/model"
+	"github.com/itxcrusher/git-casebook/internal/evidence"
+	"github.com/itxcrusher/git-casebook/internal/gitexec"
+	"github.com/itxcrusher/git-casebook/internal/model"
 )
 
 type Row struct {
@@ -73,7 +73,7 @@ func Plan(ctx context.Context, runner *gitexec.Runner, sources []model.Source, a
 		return nil, model.EvidenceItem{}, err
 	}
 	item := model.EvidenceItem{
-		EvidenceID: "evidence-ref-plan", Producer: "repo-rehab", Method: "source-namespaced-reversible-ref-mapping",
+		EvidenceID: "evidence-ref-plan", Producer: "git-casebook", Method: "source-namespaced-reversible-ref-mapping",
 		Inputs: []string{"all-source-refs"}, ObservedAt: time.Now().UTC().Format(time.RFC3339Nano),
 		OutputFingerprint: digest, RawArtifact: &path, VerificationState: "VERIFIED",
 	}

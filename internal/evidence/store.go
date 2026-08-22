@@ -14,7 +14,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/itxcrusher/repo-rehab/internal/model"
+	"github.com/itxcrusher/git-casebook/internal/model"
 )
 
 type Store struct {

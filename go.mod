@@ -1,4 +1,4 @@
-module github.com/itxcrusher/repo-rehab
+module github.com/itxcrusher/git-casebook
 
 go 1.27.0
 

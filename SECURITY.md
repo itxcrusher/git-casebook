@@ -9,7 +9,7 @@ until versioned releases exist.
 
 Use a private GitHub security advisory when that feature is available to you:
 
-<https://github.com/itxcrusher/repo-rehab/security/advisories/new>
+<https://github.com/itxcrusher/git-casebook/security/advisories/new>
 
 Do not place credentials, private repository contents, crafted private objects,
 or sensitive case evidence in a public issue. If the private advisory route is

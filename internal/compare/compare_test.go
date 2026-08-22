@@ -3,8 +3,8 @@ package compare
 import (
 	"testing"
 
-	"github.com/itxcrusher/repo-rehab/internal/inventory"
-	"github.com/itxcrusher/repo-rehab/internal/model"
+	"github.com/itxcrusher/git-casebook/internal/inventory"
+	"github.com/itxcrusher/git-casebook/internal/model"
 )
 
 func completeSource(id string, commits, objects []string) (model.Source, inventory.Data) {
