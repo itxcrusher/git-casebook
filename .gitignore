@@ -1,0 +1,6 @@
+/bin/
+/dist/
+/.case/
+*.exe
+*.out
+coverage.txt
