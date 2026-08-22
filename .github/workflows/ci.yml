@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Go 1.27
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Record tool versions
+        shell: bash
+        run: |
+          go version
+          git version
+
+      - name: Verify formatting
+        shell: bash
+        run: test -z "$(gofmt -l .)"
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test deterministic core and F01-F15
+        run: go test ./... -count=1 -timeout=20m
+
+      - name: Build
+        run: go build -o ./bin/repo-rehab ./cmd/repo-rehab
+
+  linux-boundaries:
+    name: Linux boundary checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Race-check deterministic packages
+        run: go test -race ./internal/... -count=1 -timeout=15m
+
+      - name: Build offline integration test binary
+        run: go test -c ./test -o ./bin/offline-integration.test
+
+      - name: Run local investigation with egress namespace removed
+        shell: bash
+        run: sudo unshare --net -- env PATH="$PATH" ./bin/offline-integration.test -test.run '^TestFileURLAcquisitionRevokesNetworkBeforeAnalysis$' -test.v
+
+      - name: Verify Linux symlink confinement
+        run: go test ./test -run '^TestLinuxSymlinkDoesNotEscapeCase$' -count=1 -v

@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:repository-rehabilitation:case:1.0.0",
+  "title": "Forensic repository rehabilitation case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "case_id", "created_at", "tool", "status", "policy",
+    "operator", "source_count", "case_fingerprint", "sources", "relationships",
+    "evidence_items", "findings", "gates", "decisions", "extensions"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "case_id": { "$ref": "#/$defs/stableId" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "tool": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "version", "git_version", "platform"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "git_version": { "type": "string", "minLength": 1 },
+        "platform": { "type": "string", "minLength": 1 }
+      }
+    },
+    "status": { "enum": ["OPEN", "INCOMPLETE", "READY_FOR_REVIEW", "CLOSED"] },
+    "policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["profile", "fingerprint", "capability_level", "network_after_acquisition"],
+      "properties": {
+        "profile": { "type": "string", "minLength": 1 },
+        "fingerprint": { "$ref": "#/$defs/sha256" },
+        "capability_level": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "network_after_acquisition": { "const": false }
+      }
+    },
+    "operator": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "identifier"],
+      "properties": {
+        "kind": { "enum": ["HUMAN", "AUTOMATION"] },
+        "identifier": { "type": "string", "minLength": 1 }
+      }
+    },
+    "source_count": { "type": "integer", "minimum": 1 },
+    "case_fingerprint": { "$ref": "#/$defs/sha256" },
+    "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/source" } },
+    "relationships": { "type": "array", "items": { "$ref": "#/$defs/relationship" } },
+    "evidence_items": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" } },
+    "findings": { "type": "array", "items": { "$ref": "#/$defs/finding" } },
+    "gates": { "type": "array", "items": { "$ref": "#/$defs/gate" } },
+    "decisions": { "type": "array", "items": { "$ref": "#/$defs/decision" } },
+    "extensions": { "$ref": "#/$defs/extensions" }
+  },
+  "$defs": {
+    "stableId": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_.:][a-z0-9]+)*$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "oid": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
+    "extensions": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+$" },
+      "additionalProperties": true
+    },
+    "ref": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "original_name", "type", "object_id", "peeled_object_id",
+        "proposed_mapping", "mapping_state", "verified_destination_object_id",
+        "collision_state", "archival_disposition"
+      ],
+      "properties": {
+        "original_name": { "type": "string", "minLength": 1 },
+        "type": { "enum": ["BRANCH", "TAG", "REMOTE", "PULL", "NOTE", "REPLACE", "OTHER"] },
+        "object_id": { "$ref": "#/$defs/oid" },
+        "peeled_object_id": { "oneOf": [{ "$ref": "#/$defs/oid" }, { "type": "null" }] },
+        "proposed_mapping": { "type": ["string", "null"] },
+        "mapping_state": { "enum": ["NOT_PLANNED", "PROPOSED", "APPROVED", "APPLIED", "VERIFIED", "REJECTED"] },
+        "verified_destination_object_id": { "oneOf": [{ "$ref": "#/$defs/oid" }, { "type": "null" }] },
+        "collision_state": { "enum": ["NONE", "COLLISION", "NOT_PLANNED"] },
+        "archival_disposition": { "enum": ["PRESERVE", "REMAP", "REVIEW", "EXCLUDE_WITH_REASON"] }
+      }
+    },
+    "objectInventory": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "commit_count", "reachable_object_count", "all_object_count",
+        "commit_set_digest", "reachable_object_set_digest", "manifest_artifact",
+        "unreachable_object_count"
+      ],
+      "properties": {
+        "commit_count": { "type": "integer", "minimum": 0 },
+        "reachable_object_count": { "type": "integer", "minimum": 0 },
+        "all_object_count": { "type": "integer", "minimum": 0 },
+        "commit_set_digest": { "$ref": "#/$defs/sha256" },
+        "reachable_object_set_digest": { "$ref": "#/$defs/sha256" },
+        "manifest_artifact": { "type": "string", "minLength": 1 },
+        "unreachable_object_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "source_id", "original_locator", "local_mirror_locator", "role",
+        "discovery_method", "retrieved_at", "default_branch", "remote_metadata",
+        "object_format", "shallow", "partial_clone", "lfs", "submodules",
+        "integrity", "completeness", "refs", "objects", "source_fingerprint", "extensions"
+      ],
+      "properties": {
+        "source_id": { "$ref": "#/$defs/stableId" },
+        "original_locator": { "type": "string", "minLength": 1 },
+        "local_mirror_locator": { "type": "string", "minLength": 1 },
+        "role": { "enum": ["ORIGINAL", "FORK", "MIRROR", "ARCHIVE", "UNKNOWN"] },
+        "discovery_method": { "enum": ["DECLARED", "REMOTE_METADATA", "LOCAL_DISCOVERY", "HUMAN_ASSERTION"] },
+        "retrieved_at": { "type": "string", "format": "date-time" },
+        "default_branch": { "type": ["string", "null"] },
+        "remote_metadata": {
+          "type": "object", "additionalProperties": false,
+          "required": ["fetch_locators", "push_disabled"],
+          "properties": {
+            "fetch_locators": { "type": "array", "items": { "type": "string" } },
+            "push_disabled": { "type": "boolean" }
+          }
+        },
+        "object_format": { "enum": ["sha1", "sha256", "unknown"] },
+        "shallow": { "type": "boolean" },
+        "partial_clone": { "type": "boolean" },
+        "lfs": {
+          "type": "object", "additionalProperties": false,
+          "required": ["declared", "pointer_count", "objects_available"],
+          "properties": {
+            "declared": { "type": "boolean" },
+            "pointer_count": { "type": "integer", "minimum": 0 },
+            "objects_available": { "enum": ["YES", "NO", "UNKNOWN", "NOT_APPLICABLE"] }
+          }
+        },
+        "submodules": {
+          "type": "object", "additionalProperties": false,
+          "required": ["declared", "entries", "fetched"],
+          "properties": {
+            "declared": { "type": "boolean" },
+            "entries": { "type": "array", "items": { "type": "string" } },
+            "fetched": { "const": false }
+          }
+        },
+        "integrity": { "enum": ["VERIFIED", "FAILED", "NOT_CHECKED"] },
+        "completeness": { "enum": ["COMPLETE", "INCOMPLETE", "UNKNOWN"] },
+        "refs": { "type": "array", "items": { "$ref": "#/$defs/ref" } },
+        "objects": { "$ref": "#/$defs/objectInventory" },
+        "source_fingerprint": { "$ref": "#/$defs/sha256" },
+        "extensions": { "$ref": "#/$defs/extensions" }
+      }
+    },
+    "relationship": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "relationship_id", "source_a", "source_b", "classification",
+        "shared_commit_count", "source_a_only_commit_count", "source_b_only_commit_count",
+        "source_a_only_object_count", "source_b_only_object_count", "reason_codes", "evidence_ids"
+      ],
+      "properties": {
+        "relationship_id": { "$ref": "#/$defs/stableId" },
+        "source_a": { "$ref": "#/$defs/stableId" },
+        "source_b": { "$ref": "#/$defs/stableId" },
+        "classification": { "enum": ["EXACT", "SUPERSET", "SUBSET", "DIVERGED", "DISJOINT", "UNKNOWN"] },
+        "shared_commit_count": { "type": "integer", "minimum": 0 },
+        "source_a_only_commit_count": { "type": "integer", "minimum": 0 },
+        "source_b_only_commit_count": { "type": "integer", "minimum": 0 },
+        "source_a_only_object_count": { "type": "integer", "minimum": 0 },
+        "source_b_only_object_count": { "type": "integer", "minimum": 0 },
+        "reason_codes": { "type": "array", "items": { "type": "string" } },
+        "evidence_ids": { "type": "array", "items": { "$ref": "#/$defs/stableId" } }
+      }
+    },
+    "evidenceItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["evidence_id", "producer", "method", "inputs", "observed_at", "output_fingerprint", "raw_artifact", "verification_state"],
+      "properties": {
+        "evidence_id": { "$ref": "#/$defs/stableId" },
+        "producer": { "type": "string", "minLength": 1 },
+        "method": { "type": "string", "minLength": 1 },
+        "inputs": { "type": "array", "items": { "type": "string" } },
+        "observed_at": { "type": "string", "format": "date-time" },
+        "output_fingerprint": { "$ref": "#/$defs/sha256" },
+        "raw_artifact": { "type": ["string", "null"] },
+        "verification_state": { "enum": ["VERIFIED", "FAILED", "INCOMPLETE"] }
+      }
+    },
+    "finding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["finding_id", "kind", "summary", "evidence_ids", "verification_state"],
+      "properties": {
+        "finding_id": { "$ref": "#/$defs/stableId" },
+        "kind": { "enum": ["DETERMINISTIC_FACT", "AGENT_INFERENCE", "HUMAN_ASSERTION", "UNRESOLVED_UNCERTAINTY"] },
+        "summary": { "type": "string", "minLength": 1 },
+        "evidence_ids": { "type": "array", "items": { "$ref": "#/$defs/stableId" } },
+        "verification_state": { "enum": ["VERIFIED", "ASSERTED", "UNRESOLVED", "REJECTED"] }
+      }
+    },
+    "gate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["gate_id", "action", "state", "scope", "authority", "reason", "changed_at"],
+      "properties": {
+        "gate_id": { "$ref": "#/$defs/stableId" },
+        "action": { "enum": ["NETWORK", "SOURCE_EXECUTION", "DEPENDENCY_INSTALL", "HISTORY_REWRITE", "PUSH", "PUBLISH", "DELETE_SOURCE", "LICENSE_DEPENDENT_REUSE"] },
+        "state": { "enum": ["CLOSED", "AUTHORIZED", "REVOKED"] },
+        "scope": { "type": "string", "minLength": 1 },
+        "authority": { "type": ["string", "null"] },
+        "reason": { "type": "string", "minLength": 1 },
+        "changed_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "decision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["decision_id", "recommendation", "actor_kind", "status", "evidence_ids", "rationale"],
+      "properties": {
+        "decision_id": { "$ref": "#/$defs/stableId" },
+        "recommendation": { "enum": ["PRESERVE_ALL", "CANONICALIZE_SOURCE", "INVESTIGATE_DIVERGENCE", "SALVAGE", "REBUILD", "ABANDON"] },
+        "actor_kind": { "enum": ["HUMAN", "AGENT"] },
+        "status": { "enum": ["PROPOSED", "ACCEPTED", "REJECTED", "SUPERSEDED"] },
+        "evidence_ids": { "type": "array", "items": { "$ref": "#/$defs/stableId" } },
+        "rationale": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
