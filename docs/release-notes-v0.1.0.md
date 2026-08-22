@@ -1,7 +1,7 @@
-# GitCasebook v0.1.0 Draft Release Notes
+# GitCasebook v0.1.0
 
-This is a draft for the first public release. No `v0.1.0` tag or GitHub release
-exists yet.
+These notes define the contents of GitCasebook v0.1.0, the first pre-1.0
+release.
 
 ## What is included
 
@@ -27,15 +27,15 @@ Acquisition may use the network; deterministic analysis is offline by design.
 GitCasebook is not an operating-system sandbox. Review `SECURITY.md` before
 analyzing deliberately hostile sources.
 
-## Distribution candidates
+## Distribution
 
-Publication preparation builds five archives and a `SHA256SUMS` file:
+The v0.1.0 artifact set consists of five archives and a `SHA256SUMS` file:
 
 - Linux amd64 and arm64;
 - Windows amd64;
 - macOS amd64 and arm64.
 
-Source installation is planned through:
+The versioned source installation command is:
 
 ```text
 go install github.com/itxcrusher/git-casebook/cmd/git-casebook@v0.1.0

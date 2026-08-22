@@ -70,7 +70,7 @@ func (a App) Preserve(ctx context.Context) (model.Case, error) {
 	}
 	c := model.Case{
 		SchemaVersion: model.SchemaVersion, CaseID: policy.CaseID, CreatedAt: createdAt,
-		Tool:   model.Tool{Name: "git-casebook", Version: version.Value, GitVersion: gitVersion, Platform: runtime.GOOS + "/" + runtime.GOARCH},
+		Tool:   model.Tool{Name: "git-casebook", Version: version.Current(), GitVersion: gitVersion, Platform: runtime.GOOS + "/" + runtime.GOARCH},
 		Status: "INCOMPLETE", Operator: policy.Operator,
 		Sources: []model.Source{}, Relationships: []model.Relationship{}, EvidenceItems: []model.EvidenceItem{},
 		Findings: []model.Finding{}, Gates: defaultGates(false, policy.Operator.Identifier), Decisions: []model.Decision{},

@@ -38,15 +38,23 @@ func TestRepositoryYAMLIsSyntacticallyValid(t *testing.T) {
 
 func TestCanonicalProductIdentity(t *testing.T) {
 	root := repositoryRoot(t)
-	checks := map[string]string{
-		"go.mod":                      "module github.com/itxcrusher/git-casebook",
-		"README.md":                   "# GitCasebook",
-		"SECURITY.md":                 "github.com/itxcrusher/git-casebook/security/advisories/new",
-		"schema/case-v1.schema.json":  "urn:git-casebook:case:1.0.0",
-		"cmd/git-casebook/main.go":    "git-casebook investigate",
-		"internal/version/version.go": "var Value = \"0.1.0-dev\"",
+	checks := []struct {
+		path     string
+		expected string
+	}{
+		{path: "go.mod", expected: "module github.com/itxcrusher/git-casebook"},
+		{path: "README.md", expected: "# GitCasebook"},
+		{path: "SECURITY.md", expected: "github.com/itxcrusher/git-casebook/security/advisories/new"},
+		{path: "schema/case-v1.schema.json", expected: "urn:git-casebook:case:1.0.0"},
+		{path: "cmd/git-casebook/main.go", expected: "git-casebook investigate"},
+		{path: "internal/version/version.go", expected: "func Current() string"},
+		{path: "cmd/git-casebook/main.go", expected: "version.Current()"},
+		{path: "internal/app/app.go", expected: "Version: version.Current()"},
+		{path: "scripts/build-release.ps1", expected: "internal/version.Override"},
+		{path: ".github/workflows/release.yml", expected: `--notes-file "$notes"`},
 	}
-	for rel, expected := range checks {
+	for _, check := range checks {
+		rel, expected := check.path, check.expected
 		content, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
 		if err != nil {
 			t.Fatalf("read %s: %v", rel, err)
@@ -72,7 +80,7 @@ func TestMarkdownRelativeLinksResolve(t *testing.T) {
 			return walkErr
 		}
 		if entry.IsDir() {
-			if entry.Name() == ".git" || entry.Name() == "bin" {
+			if entry.Name() == ".git" || entry.Name() == "bin" || entry.Name() == "dist" {
 				return filepath.SkipDir
 			}
 			return nil

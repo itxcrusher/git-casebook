@@ -2,8 +2,9 @@
 
 ## Supported versions
 
-This repository is pre-release. Security fixes apply to the current `main` branch
-until versioned releases exist.
+GitCasebook is pre-1.0. Supported versions are identified in
+[GitHub Releases](https://github.com/itxcrusher/git-casebook/releases); security
+fixes also land on the current `main` branch before the next release.
 
 ## Reporting a vulnerability
 

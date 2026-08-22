@@ -10,8 +10,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-if ($Version -notmatch '^v?0\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$') {
-    throw "Version must be a v0.x semantic version."
+if ($Version -notmatch '^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$') {
+    throw "Version must be a semantic version."
 }
 
 $normalizedVersion = $Version.TrimStart("v")
@@ -55,7 +55,7 @@ try {
         $env:GOARCH = $target.Architecture
         $env:CGO_ENABLED = "0"
 
-        & go build -trimpath -ldflags "-s -w -X github.com/itxcrusher/git-casebook/internal/version.Value=$normalizedVersion" -o $binaryPath ./cmd/git-casebook
+        & go build -trimpath -ldflags "-s -w -X github.com/itxcrusher/git-casebook/internal/version.Override=$normalizedVersion" -o $binaryPath ./cmd/git-casebook
         if ($LASTEXITCODE -ne 0) {
             throw "Go build failed for $($target.OS)/$($target.Architecture)."
         }

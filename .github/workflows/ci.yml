@@ -83,6 +83,14 @@ jobs:
           mkdir ./dist/smoke
           tar -xzf ./dist/git-casebook_0.1.0_linux_amd64.tar.gz -C ./dist/smoke
           test "$(./dist/smoke/git-casebook --version)" = "0.1.0"
+          git -c init.defaultBranch=main init ./dist/synthetic-source
+          git -C ./dist/synthetic-source config user.name "Synthetic Test"
+          git -C ./dist/synthetic-source config user.email "synthetic@example.invalid"
+          printf 'synthetic\n' > ./dist/synthetic-source/README.md
+          git -C ./dist/synthetic-source add README.md
+          git -C ./dist/synthetic-source commit -m "synthetic fixture"
+          ./dist/smoke/git-casebook investigate ./dist/synthetic-source --case ./dist/version.case
+          python3 -c 'import json; assert json.load(open("./dist/version.case/case.json", encoding="utf-8"))["tool"]["version"] == "0.1.0"'
 
   linux-boundaries:
     name: Linux boundary checks

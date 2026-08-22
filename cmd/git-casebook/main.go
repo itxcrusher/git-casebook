@@ -58,7 +58,7 @@ func run(raw []string) int {
 		return 0
 	}
 	if args[0] == "--version" || args[0] == "version" {
-		fmt.Println(version.Value)
+		fmt.Println(version.Current())
 		return 0
 	}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

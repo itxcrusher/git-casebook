@@ -2,7 +2,7 @@
 
 ## Product versions
 
-GitCasebook uses Semantic Versioning. The first planned release is `v0.1.0`.
+GitCasebook uses Semantic Versioning. The first release version is `v0.1.0`.
 During `0.x`, minor versions may change commands, machine output, or case
 behavior when the change is necessary to correct forensic semantics or improve
 the pre-1.0 contract. Patch versions remain backward-compatible bug and security
@@ -10,6 +10,16 @@ fixes within that minor line where practical.
 
 Every case records the exact GitCasebook and native Git versions that produced
 its evidence. Users should retain those fields when sharing or comparing cases.
+
+The CLI and case evidence use one version resolver:
+
+1. release archives use an explicit build-time version;
+2. versioned module installs use the main-module version embedded by Go; and
+3. untagged, pseudo-version, dirty, or otherwise unversioned source builds report
+   the development value `0.1.0-dev`.
+
+The displayed form omits Go's leading `v`, so module version `v0.1.0` is recorded
+and printed as `0.1.0`.
 
 ## Evidence schema versions
 

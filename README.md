@@ -8,7 +8,8 @@ anything.
 
 **Preserve. Compare. Prove. Plan.**
 
-Status: **pre-release; v0.1 under development**. No release has been published.
+Status: **pre-1.0**. Published versions are listed in
+[GitHub Releases](https://github.com/itxcrusher/git-casebook/releases).
 
 ## The problem
 
@@ -95,16 +96,14 @@ objects. Use separate OS isolation for deliberately hostile inputs. Review the
 
 ## Installation
 
-GitCasebook requires a supported native Git executable. The v0.1.0 source
-installation path is prepared as:
+GitCasebook requires a supported native Git executable. The versioned source
+installation command for v0.1.0 is:
 
 ```text
 go install github.com/itxcrusher/git-casebook/cmd/git-casebook@v0.1.0
 ```
 
-That exact command becomes available only after the private repository is made
-public and `v0.1.0` is tagged. During pre-release development, clone the
-repository and run:
+For an untagged development checkout, use:
 
 ```text
 go install ./cmd/git-casebook

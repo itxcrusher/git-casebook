@@ -14,6 +14,7 @@ import (
 	"github.com/itxcrusher/git-casebook/internal/evidence"
 	"github.com/itxcrusher/git-casebook/internal/model"
 	"github.com/itxcrusher/git-casebook/internal/refplan"
+	"github.com/itxcrusher/git-casebook/internal/version"
 	"github.com/itxcrusher/git-casebook/test/fixtures"
 )
 
@@ -385,6 +386,17 @@ func TestCaseSchemaAndJSONLValidate(t *testing.T) {
 		if err := store.ValidateJSONL(name); err != nil {
 			t.Fatal(err)
 		}
+	}
+}
+
+func TestCaseEvidenceUsesCanonicalToolVersion(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	repo := fixtures.New(t, root, "tool-version")
+	repo.Commit("base.txt", "base\n", "base")
+	c, _, _ := investigate(t, root, repo.Path)
+	if c.Tool.Version != version.Current() {
+		t.Fatalf("case tool version %q differs from canonical version %q", c.Tool.Version, version.Current())
 	}
 }
 
