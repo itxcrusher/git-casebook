@@ -12,19 +12,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/itxcrusher/repo-rehab/internal/casefile"
-	"github.com/itxcrusher/repo-rehab/internal/compare"
-	"github.com/itxcrusher/repo-rehab/internal/evidence"
-	"github.com/itxcrusher/repo-rehab/internal/gitexec"
-	"github.com/itxcrusher/repo-rehab/internal/inventory"
-	"github.com/itxcrusher/repo-rehab/internal/model"
-	"github.com/itxcrusher/repo-rehab/internal/preserve"
-	"github.com/itxcrusher/repo-rehab/internal/refplan"
-	"github.com/itxcrusher/repo-rehab/internal/report"
-	"github.com/itxcrusher/repo-rehab/internal/version"
+	"github.com/itxcrusher/git-casebook/internal/casefile"
+	"github.com/itxcrusher/git-casebook/internal/compare"
+	"github.com/itxcrusher/git-casebook/internal/evidence"
+	"github.com/itxcrusher/git-casebook/internal/gitexec"
+	"github.com/itxcrusher/git-casebook/internal/inventory"
+	"github.com/itxcrusher/git-casebook/internal/model"
+	"github.com/itxcrusher/git-casebook/internal/preserve"
+	"github.com/itxcrusher/git-casebook/internal/refplan"
+	"github.com/itxcrusher/git-casebook/internal/report"
+	"github.com/itxcrusher/git-casebook/internal/version"
 )
 
-const extensionNamespace = "io.github.itxcrusher.repo-rehab"
+const extensionNamespace = "io.github.itxcrusher.git-casebook"
 
 type App struct {
 	CaseRoot string
@@ -70,7 +70,7 @@ func (a App) Preserve(ctx context.Context) (model.Case, error) {
 	}
 	c := model.Case{
 		SchemaVersion: model.SchemaVersion, CaseID: policy.CaseID, CreatedAt: createdAt,
-		Tool:   model.Tool{Name: "repo-rehab", Version: version.Value, GitVersion: gitVersion, Platform: runtime.GOOS + "/" + runtime.GOARCH},
+		Tool:   model.Tool{Name: "git-casebook", Version: version.Current(), GitVersion: gitVersion, Platform: runtime.GOOS + "/" + runtime.GOARCH},
 		Status: "INCOMPLETE", Operator: policy.Operator,
 		Sources: []model.Source{}, Relationships: []model.Relationship{}, EvidenceItems: []model.EvidenceItem{},
 		Findings: []model.Finding{}, Gates: defaultGates(false, policy.Operator.Identifier), Decisions: []model.Decision{},
@@ -462,7 +462,7 @@ func acquisitionSource(artifacts evidence.Store, declared model.PolicySource, ac
 		Extensions:        map[string]any{extensionNamespace: map[string]any{"acquisition_method": acquired.Method, "acquisition_status": status, "mirror_tree_fingerprint": acquired.MirrorFingerprint}},
 	}
 	item := model.EvidenceItem{
-		EvidenceID: "evidence-acquisition-" + declared.SourceID, Producer: "repo-rehab", Method: "controlled-git-mirror-acquisition",
+		EvidenceID: "evidence-acquisition-" + declared.SourceID, Producer: "git-casebook", Method: "controlled-git-mirror-acquisition",
 		Inputs: []string{"source:" + declared.SourceID}, ObservedAt: retrievedAt, OutputFingerprint: digest,
 		VerificationState: verification,
 	}

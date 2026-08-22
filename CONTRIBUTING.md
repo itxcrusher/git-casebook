@@ -1,6 +1,6 @@
 # Contributing
 
-`repo-rehab` accepts focused changes that strengthen the deterministic
+GitCasebook accepts focused changes that strengthen the deterministic
 preserve/compare/prove/plan contract.
 
 ## Before opening a change
@@ -22,7 +22,7 @@ Use Go 1.27.0 and a native Git executable, then run:
 gofmt -w .
 go vet ./...
 go test ./...
-go build ./cmd/repo-rehab
+go build ./cmd/git-casebook
 ```
 
 Changes to Git behavior need a synthetic regression fixture and a deterministic

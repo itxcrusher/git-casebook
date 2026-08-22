@@ -16,6 +16,7 @@ func TestRepositoryYAMLIsSyntacticallyValid(t *testing.T) {
 	root := repositoryRoot(t)
 	paths := []string{
 		".github/workflows/ci.yml",
+		".github/workflows/release.yml",
 		".github/dependabot.yml",
 		".github/ISSUE_TEMPLATE/config.yml",
 		".github/ISSUE_TEMPLATE/bug.yml",
@@ -35,6 +36,42 @@ func TestRepositoryYAMLIsSyntacticallyValid(t *testing.T) {
 	}
 }
 
+func TestCanonicalProductIdentity(t *testing.T) {
+	root := repositoryRoot(t)
+	checks := []struct {
+		path     string
+		expected string
+	}{
+		{path: "go.mod", expected: "module github.com/itxcrusher/git-casebook"},
+		{path: "README.md", expected: "# GitCasebook"},
+		{path: "SECURITY.md", expected: "github.com/itxcrusher/git-casebook/security/advisories/new"},
+		{path: "schema/case-v1.schema.json", expected: "urn:git-casebook:case:1.0.0"},
+		{path: "cmd/git-casebook/main.go", expected: "git-casebook investigate"},
+		{path: "internal/version/version.go", expected: "func Current() string"},
+		{path: "cmd/git-casebook/main.go", expected: "version.Current()"},
+		{path: "internal/app/app.go", expected: "Version: version.Current()"},
+		{path: "scripts/build-release.ps1", expected: "internal/version.Override"},
+		{path: ".github/workflows/release.yml", expected: `--notes-file "$notes"`},
+	}
+	for _, check := range checks {
+		rel, expected := check.path, check.expected
+		content, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatalf("read %s: %v", rel, err)
+		}
+		if !bytes.Contains(content, []byte(expected)) {
+			t.Errorf("%s does not contain canonical identity %q", rel, expected)
+		}
+	}
+	commandDirectories, err := os.ReadDir(filepath.Join(root, "cmd"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(commandDirectories) != 1 || commandDirectories[0].Name() != "git-casebook" || !commandDirectories[0].IsDir() {
+		t.Errorf("cmd must contain only the canonical git-casebook command directory")
+	}
+}
+
 func TestMarkdownRelativeLinksResolve(t *testing.T) {
 	root := repositoryRoot(t)
 	link := regexp.MustCompile(`\[[^\]]+\]\(([^)]+)\)`)
@@ -43,7 +80,7 @@ func TestMarkdownRelativeLinksResolve(t *testing.T) {
 			return walkErr
 		}
 		if entry.IsDir() {
-			if entry.Name() == ".git" || entry.Name() == "bin" {
+			if entry.Name() == ".git" || entry.Name() == "bin" || entry.Name() == "dist" {
 				return filepath.SkipDir
 			}
 			return nil

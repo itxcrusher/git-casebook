@@ -3,7 +3,7 @@
 ## Guided workflow
 
 ```text
-repo-rehab investigate <source> [<source> ...] --case <directory>
+git-casebook investigate <source> [<source> ...] --case <directory>
 ```
 
 This creates or resumes a case, declares sources, makes controlled mirrors,
@@ -14,6 +14,12 @@ Existing local Git directories and `https`, `ssh`, or `file` Git locators are
 accepted. Password-bearing URLs, query strings, fragments, and `ext` transports
 are rejected. Credential helpers and prompts are disabled; authenticated remote
 acquisition therefore requires a future explicit credential design.
+
+When `git-casebook` is on `PATH`, Git can also discover it as a dashed command:
+
+```text
+git casebook investigate <source> [<source> ...] --case <directory>
+```
 
 ## Lifecycle commands
 

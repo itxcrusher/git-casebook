@@ -5,9 +5,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/itxcrusher/repo-rehab/internal/evidence"
-	"github.com/itxcrusher/repo-rehab/internal/inventory"
-	"github.com/itxcrusher/repo-rehab/internal/model"
+	"github.com/itxcrusher/git-casebook/internal/evidence"
+	"github.com/itxcrusher/git-casebook/internal/inventory"
+	"github.com/itxcrusher/git-casebook/internal/model"
 )
 
 func All(sources []model.Source, data map[string]inventory.Data, artifacts evidence.Store) ([]model.Relationship, []model.EvidenceItem, error) {
@@ -32,7 +32,7 @@ func All(sources []model.Source, data map[string]inventory.Data, artifacts evide
 				verification = "INCOMPLETE"
 			}
 			evidenceItems = append(evidenceItems, model.EvidenceItem{
-				EvidenceID: evidenceID, Producer: "repo-rehab", Method: "set-containment-over-all-ref-reachable-manifests",
+				EvidenceID: evidenceID, Producer: "git-casebook", Method: "set-containment-over-all-ref-reachable-manifests",
 				Inputs:     []string{"source:" + sourceA.SourceID, "source:" + sourceB.SourceID},
 				ObservedAt: time.Now().UTC().Format(time.RFC3339Nano), OutputFingerprint: digest,
 				RawArtifact: &path, VerificationState: verification,

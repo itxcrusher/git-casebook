@@ -2,14 +2,15 @@
 
 ## Supported versions
 
-This repository is pre-release. Security fixes apply to the current `main` branch
-until versioned releases exist.
+GitCasebook is pre-1.0. Supported versions are identified in
+[GitHub Releases](https://github.com/itxcrusher/git-casebook/releases); security
+fixes also land on the current `main` branch before the next release.
 
 ## Reporting a vulnerability
 
 Use a private GitHub security advisory when that feature is available to you:
 
-<https://github.com/itxcrusher/repo-rehab/security/advisories/new>
+<https://github.com/itxcrusher/git-casebook/security/advisories/new>
 
 Do not place credentials, private repository contents, crafted private objects,
 or sensitive case evidence in a public issue. If the private advisory route is

@@ -19,12 +19,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -51,7 +51,46 @@ jobs:
         run: go test ./... -count=1 -timeout=20m
 
       - name: Build
-        run: go build -o ./bin/repo-rehab ./cmd/repo-rehab
+        run: go build -o ./bin/git-casebook ./cmd/git-casebook
+
+  release-dry-run:
+    name: Release artifact dry run
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Build v0.1.0 candidate artifacts
+        shell: pwsh
+        run: ./scripts/build-release.ps1 -Version v0.1.0
+
+      - name: Verify artifact set and SHA-256 checksums
+        shell: pwsh
+        run: ./scripts/verify-release.ps1 -Version v0.1.0
+
+      - name: Execute Linux candidate
+        shell: bash
+        run: |
+          mkdir ./dist/smoke
+          tar -xzf ./dist/git-casebook_0.1.0_linux_amd64.tar.gz -C ./dist/smoke
+          test "$(./dist/smoke/git-casebook --version)" = "0.1.0"
+          git -c init.defaultBranch=main init ./dist/synthetic-source
+          git -C ./dist/synthetic-source config user.name "Synthetic Test"
+          git -C ./dist/synthetic-source config user.email "synthetic@example.invalid"
+          printf 'synthetic\n' > ./dist/synthetic-source/README.md
+          git -C ./dist/synthetic-source add README.md
+          git -C ./dist/synthetic-source commit -m "synthetic fixture"
+          ./dist/smoke/git-casebook investigate ./dist/synthetic-source --case ./dist/version.case
+          python3 -c 'import json; assert json.load(open("./dist/version.case/case.json", encoding="utf-8"))["tool"]["version"] == "0.1.0"'
 
   linux-boundaries:
     name: Linux boundary checks
@@ -59,7 +98,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 

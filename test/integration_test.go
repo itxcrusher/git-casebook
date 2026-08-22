@@ -9,12 +9,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/itxcrusher/repo-rehab/internal/app"
-	"github.com/itxcrusher/repo-rehab/internal/casefile"
-	"github.com/itxcrusher/repo-rehab/internal/evidence"
-	"github.com/itxcrusher/repo-rehab/internal/model"
-	"github.com/itxcrusher/repo-rehab/internal/refplan"
-	"github.com/itxcrusher/repo-rehab/test/fixtures"
+	"github.com/itxcrusher/git-casebook/internal/app"
+	"github.com/itxcrusher/git-casebook/internal/casefile"
+	"github.com/itxcrusher/git-casebook/internal/evidence"
+	"github.com/itxcrusher/git-casebook/internal/model"
+	"github.com/itxcrusher/git-casebook/internal/refplan"
+	"github.com/itxcrusher/git-casebook/internal/version"
+	"github.com/itxcrusher/git-casebook/test/fixtures"
 )
 
 func TestSyntheticFixtureCorpus(t *testing.T) {
@@ -360,7 +361,7 @@ func TestFileURLAcquisitionRevokesNetworkBeforeAnalysis(t *testing.T) {
 	if !wantGate {
 		t.Fatal("network acquisition gate was not revoked")
 	}
-	fields := c.Extensions["io.github.itxcrusher.repo-rehab"].(map[string]any)
+	fields := c.Extensions["io.github.itxcrusher.git-casebook"].(map[string]any)
 	count, ok := fields["analysis_network_capable_command_count"].(float64)
 	if !ok || count != 0 {
 		t.Fatalf("analysis command audit is not zero: %#v", fields)
@@ -385,6 +386,17 @@ func TestCaseSchemaAndJSONLValidate(t *testing.T) {
 		if err := store.ValidateJSONL(name); err != nil {
 			t.Fatal(err)
 		}
+	}
+}
+
+func TestCaseEvidenceUsesCanonicalToolVersion(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	repo := fixtures.New(t, root, "tool-version")
+	repo.Commit("base.txt", "base\n", "base")
+	c, _, _ := investigate(t, root, repo.Path)
+	if c.Tool.Version != version.Current() {
+		t.Fatalf("case tool version %q differs from canonical version %q", c.Tool.Version, version.Current())
 	}
 }
 
@@ -463,7 +475,7 @@ func getRef(t *testing.T, c model.Case, sourceID, name string) model.Ref {
 
 func extensionString(t *testing.T, source model.Source, key string) string {
 	t.Helper()
-	fields, ok := source.Extensions["io.github.itxcrusher.repo-rehab"].(map[string]any)
+	fields, ok := source.Extensions["io.github.itxcrusher.git-casebook"].(map[string]any)
 	if !ok {
 		b, _ := json.Marshal(source.Extensions)
 		t.Fatalf("extension namespace unavailable: %s", b)

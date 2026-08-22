@@ -10,22 +10,22 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/itxcrusher/repo-rehab/internal/app"
-	"github.com/itxcrusher/repo-rehab/internal/version"
+	"github.com/itxcrusher/git-casebook/internal/app"
+	"github.com/itxcrusher/git-casebook/internal/version"
 )
 
-const usageText = `repo-rehab preserves uncertain Git sources and proves their provenance.
+const usageText = `git-casebook preserves uncertain Git sources and proves their provenance.
 
 Usage:
-  repo-rehab investigate <source> [<source> ...] [--case <directory>]
-  repo-rehab case init [--case <directory>] [--id <case-id>] [--operator <id>]
-  repo-rehab source add [--case <directory>] [--id <source-id>] [--role <role>] [--kind <kind>] <source>
-  repo-rehab preserve [--case <directory>]
-  repo-rehab inspect [--case <directory>]
-  repo-rehab compare [--case <directory>]
-  repo-rehab refs plan [--case <directory>]
-  repo-rehab verify [--case <directory>]
-  repo-rehab report [--case <directory>]
+  git-casebook investigate <source> [<source> ...] [--case <directory>]
+  git-casebook case init [--case <directory>] [--id <case-id>] [--operator <id>]
+  git-casebook source add [--case <directory>] [--id <source-id>] [--role <role>] [--kind <kind>] <source>
+  git-casebook preserve [--case <directory>]
+  git-casebook inspect [--case <directory>]
+  git-casebook compare [--case <directory>]
+  git-casebook refs plan [--case <directory>]
+  git-casebook verify [--case <directory>]
+  git-casebook report [--case <directory>]
 
 Global options may appear anywhere:
   --case <directory>   Case directory (default .case)
@@ -58,7 +58,7 @@ func run(raw []string) int {
 		return 0
 	}
 	if args[0] == "--version" || args[0] == "version" {
-		fmt.Println(version.Value)
+		fmt.Println(version.Current())
 		return 0
 	}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -230,7 +230,7 @@ func fail(options globalOptions, code string, err error, exitCode int) int {
 		b, _ := json.Marshal(map[string]any{"error": map[string]any{"code": code, "message": err.Error()}, "exit_code": exitCode})
 		fmt.Fprintln(os.Stderr, string(b))
 	} else {
-		fmt.Fprintf(os.Stderr, "repo-rehab: %s: %v\n", code, err)
+		fmt.Fprintf(os.Stderr, "git-casebook: %s: %v\n", code, err)
 	}
 	return exitCode
 }
