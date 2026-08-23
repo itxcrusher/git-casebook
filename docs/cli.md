@@ -44,9 +44,16 @@ must appear before its locator. Use `--help` for the current surface.
 - `1`: operation or verification infrastructure failed.
 - `2`: invalid command usage.
 
-`--json` returns one compact JSON result on stdout. `--json-errors` returns an
-error object with `code`, `message`, and `exit_code` on stderr. Progress and errors
-do not echo accepted secret-bearing URL forms because those forms are rejected.
+Without `--json`, `investigate` and `compare` print a per-pair classification
+summary on stdout, and acquisition progress with preserved mirror sizes goes to
+stderr. The summary is a view over `case.json`; the case and `report.md` remain
+authoritative.
+
+`--json` returns one compact JSON result on stdout, and suppresses both the
+summary and the progress output, so stderr stays silent. `--json-errors` returns
+an error object with `code`, `message`, and `exit_code` on stderr. Progress and
+errors do not echo accepted secret-bearing URL forms because those forms are
+rejected.
 
 ## Idempotence
 

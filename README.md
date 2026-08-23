@@ -97,10 +97,10 @@ objects. Use separate OS isolation for deliberately hostile inputs. Review the
 ## Installation
 
 GitCasebook requires a supported native Git executable. The versioned source
-installation command for v0.1.0 is:
+installation command for v0.1.1 is:
 
 ```text
-go install github.com/itxcrusher/git-casebook/cmd/git-casebook@v0.1.0
+go install github.com/itxcrusher/git-casebook/cmd/git-casebook@v0.1.1
 ```
 
 For an untagged development checkout, use:

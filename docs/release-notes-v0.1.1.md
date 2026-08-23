@@ -2,9 +2,16 @@
 
 A patch release. It changes what GitCasebook shows you, not what it concludes.
 
-Classification logic, canonical `case.json` state, the evidence schema, and
-`--json` output are byte-for-byte unchanged from v0.1.0. Case fingerprints
-produced by the two versions agree.
+Classification logic, the evidence schema, the `case.json` field set, and
+`--json` output are unchanged from v0.1.0. No relationship, inventory,
+comparison, or ref-planning code was touched.
+
+One thing does change. Every case records the tool version that produced it, and
+`case_fingerprint` covers that field, so a case regenerated under v0.1.1 carries
+a different `tool.version` and a different `case_fingerprint` than the same case
+recorded under v0.1.0. Every other fingerprint input is identical. Fingerprints
+identify a case as recorded by a specific tool version; they are not stable
+across versions and were never intended to be.
 
 ## Why this release exists
 
@@ -38,9 +45,13 @@ Progress goes to standard error, so piping standard output is unaffected. Under
 
 ## Upgrading
 
-Nothing to migrate. Cases produced by v0.1.0 remain valid and readable, and
-regenerating a case with v0.1.1 from the same preserved sources produces the
-same canonical state.
+Nothing to migrate. Cases produced by v0.1.0 remain valid, readable, and
+verifiable: verification recomputes from the tool version stored in the case, so
+existing evidence continues to pass unchanged.
+
+Regenerating a case under v0.1.1 from the same preserved sources changes
+`tool.version` and the derived `case_fingerprint`. No other canonical field
+changes, and every classification is identical.
 
 ## Distribution
 
