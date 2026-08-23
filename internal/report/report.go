@@ -43,16 +43,29 @@ func Render(c model.Case) []byte {
 	if len(c.Relationships) == 0 {
 		fmt.Fprintln(&out, "No pairwise relationship exists for a single-source case.")
 	} else {
-		fmt.Fprintln(&out, "| Direction | Classification | Shared commits | A-only commits | B-only commits | Evidence |")
-		fmt.Fprintln(&out, "| --- | --- | ---: | ---: | ---: | --- |")
+		fmt.Fprintln(&out, "| Direction | Classification | Shared commits | A-only commits | B-only commits | A-only objects | B-only objects | Reason | Evidence |")
+		fmt.Fprintln(&out, "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- |")
+		objectOnly := false
 		for _, rel := range c.Relationships {
 			evidenceID := ""
 			if len(rel.EvidenceIDs) > 0 {
 				evidenceID = "`" + escape(rel.EvidenceIDs[0]) + "`"
 			}
-			fmt.Fprintf(&out, "| `%s` -> `%s` | **%s** | %d | %d | %d | %s |\n",
+			if isObjectOnlyContainment(rel) {
+				objectOnly = true
+			}
+			fmt.Fprintf(&out, "| `%s` -> `%s` | **%s** | %d | %d | %d | %d | %d | %s | %s |\n",
 				escape(rel.SourceA), escape(rel.SourceB), escape(rel.Classification), rel.SharedCommitCount,
-				rel.SourceAOnlyCommitCount, rel.SourceBOnlyCommitCount, evidenceID)
+				rel.SourceAOnlyCommitCount, rel.SourceBOnlyCommitCount,
+				rel.SourceAOnlyObjectCount, rel.SourceBOnlyObjectCount,
+				reasonText(rel.ReasonCodes), evidenceID)
+		}
+		if objectOnly {
+			fmt.Fprintln(&out)
+			fmt.Fprintln(&out, "At least one pair above has no unique commits on either side and is still")
+			fmt.Fprintln(&out, "classified by object containment. Tag objects, annotated tags, and refs held")
+			fmt.Fprintln(&out, "by only one source are real Git objects, so such a pair is a strict")
+			fmt.Fprintln(&out, "containment rather than `EXACT`. The object columns carry that evidence.")
 		}
 	}
 	fmt.Fprintln(&out)
@@ -106,6 +119,31 @@ func Render(c model.Case) []byte {
 	fmt.Fprintln(&out)
 	fmt.Fprintln(&out, "Repository metadata and generated case evidence may be sensitive. Review before sharing.")
 	return out.Bytes()
+}
+
+// isObjectOnlyContainment reports a directional containment whose only evidence
+// is object-level: neither side holds a unique commit, yet the object sets
+// differ. Rendered without the object columns such a row reads as a
+// contradiction, so the report calls it out explicitly.
+func isObjectOnlyContainment(rel model.Relationship) bool {
+	if rel.Classification != "SUBSET" && rel.Classification != "SUPERSET" {
+		return false
+	}
+	if rel.SourceAOnlyCommitCount != 0 || rel.SourceBOnlyCommitCount != 0 {
+		return false
+	}
+	return rel.SourceAOnlyObjectCount != 0 || rel.SourceBOnlyObjectCount != 0
+}
+
+func reasonText(codes []string) string {
+	if len(codes) == 0 {
+		return "(none recorded)"
+	}
+	rendered := make([]string, 0, len(codes))
+	for _, code := range codes {
+		rendered = append(rendered, "`"+escape(code)+"`")
+	}
+	return strings.Join(rendered, ", ")
 }
 
 func Write(path string, content []byte) error {
