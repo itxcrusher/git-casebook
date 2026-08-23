@@ -72,6 +72,38 @@ func TestCanonicalProductIdentity(t *testing.T) {
 	}
 }
 
+func TestReleaseWorkflowsKeepSmokeOutsideArtifactsAndPublishExactAssets(t *testing.T) {
+	root := repositoryRoot(t)
+	release := readRepositoryFile(t, root, ".github/workflows/release.yml")
+	ci := readRepositoryFile(t, root, ".github/workflows/ci.yml")
+
+	for _, forbidden := range []string{`./dist/*`, `mkdir ./dist/smoke`} {
+		if bytes.Contains(release, []byte(forbidden)) {
+			t.Errorf("release workflow contains unsafe artifact handling %q", forbidden)
+		}
+	}
+	for _, required := range []string{
+		`smoke_dir="$(mktemp -d)"`,
+		`-ListPublishAssets`,
+		`test "${#assets[@]}" -eq 6`,
+		`"${assets[@]}"`,
+	} {
+		if !bytes.Contains(release, []byte(required)) {
+			t.Errorf("release workflow is missing boundary check %q", required)
+		}
+	}
+	for _, required := range []string{
+		`smoke_dir="$(mktemp -d)"`,
+		`Verify publishable asset boundary`,
+		`-ListPublishAssets`,
+		`test "${#assets[@]}" -eq 6`,
+	} {
+		if !bytes.Contains(ci, []byte(required)) {
+			t.Errorf("CI release dry run is missing boundary check %q", required)
+		}
+	}
+}
+
 func TestMarkdownRelativeLinksResolve(t *testing.T) {
 	root := repositoryRoot(t)
 	link := regexp.MustCompile(`\[[^\]]+\]\(([^)]+)\)`)
@@ -120,4 +152,13 @@ func repositoryRoot(t *testing.T) string {
 		t.Fatal("cannot locate repository root")
 	}
 	return filepath.Clean(filepath.Join(filepath.Dir(current), ".."))
+}
+
+func readRepositoryFile(t *testing.T, root, relative string) []byte {
+	t.Helper()
+	content, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(relative)))
+	if err != nil {
+		t.Fatalf("read %s: %v", relative, err)
+	}
+	return content
 }

@@ -4,7 +4,10 @@ param(
     [string]$Version = "v0.1.0",
 
     [Parameter()]
-    [string]$OutputDirectory = "dist"
+    [string]$OutputDirectory = "dist",
+
+    [Parameter()]
+    [switch]$ListPublishAssets
 )
 
 Set-StrictMode -Version Latest
@@ -18,20 +21,34 @@ $outputRoot = if ([System.IO.Path]::IsPathRooted($OutputDirectory)) {
     [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot $OutputDirectory))
 }
 
-$expected = @(
+$expectedArchives = @(
     "git-casebook_${normalizedVersion}_linux_amd64.tar.gz",
     "git-casebook_${normalizedVersion}_linux_arm64.tar.gz",
     "git-casebook_${normalizedVersion}_windows_amd64.zip",
     "git-casebook_${normalizedVersion}_darwin_amd64.tar.gz",
     "git-casebook_${normalizedVersion}_darwin_arm64.tar.gz"
-) | Sort-Object
+)
+$expectedPublishFiles = @($expectedArchives + "SHA256SUMS")
 
-$actual = Get-ChildItem -LiteralPath $outputRoot -File |
-    Where-Object { $_.Name -ne "SHA256SUMS" } |
-    Select-Object -ExpandProperty Name |
-    Sort-Object
-if (Compare-Object -ReferenceObject $expected -DifferenceObject $actual) {
-    throw "Release artifact set does not match the five supported targets."
+if (-not (Test-Path -LiteralPath $outputRoot -PathType Container)) {
+    throw "Release artifact directory does not exist."
+}
+
+$entries = @(Get-ChildItem -LiteralPath $outputRoot -Force)
+if ($entries.Count -ne $expectedPublishFiles.Count) {
+    throw "Release directory must contain exactly six publishable files."
+}
+
+foreach ($entry in $entries) {
+    if ($entry -isnot [System.IO.FileInfo] -or
+        ($entry.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+        throw "Release directory contains a non-regular entry: $($entry.Name)"
+    }
+}
+
+$actualPublishFiles = @($entries | Select-Object -ExpandProperty Name | Sort-Object)
+if (Compare-Object -ReferenceObject ($expectedPublishFiles | Sort-Object) -DifferenceObject $actualPublishFiles) {
+    throw "Release directory does not match the expected publication asset set."
 }
 
 $checksumPath = Join-Path $outputRoot "SHA256SUMS"
@@ -43,7 +60,7 @@ foreach ($line in Get-Content -LiteralPath $checksumPath) {
     $recorded[$Matches[2]] = $Matches[1]
 }
 
-foreach ($name in $expected) {
+foreach ($name in $expectedArchives) {
     if (-not $recorded.ContainsKey($name)) {
         throw "Missing checksum for $name."
     }
@@ -53,8 +70,14 @@ foreach ($name in $expected) {
     }
 }
 
-if ($recorded.Count -ne $expected.Count) {
+if ($recorded.Count -ne $expectedArchives.Count) {
     throw "SHA256SUMS contains an unexpected entry."
 }
 
-Write-Output "Verified $($expected.Count) release artifacts and SHA-256 checksums."
+if ($ListPublishAssets) {
+    foreach ($name in $expectedPublishFiles) {
+        Write-Output (Join-Path $outputRoot $name)
+    }
+} else {
+    Write-Output "Verified $($expectedArchives.Count) release artifacts and SHA-256 checksums."
+}
