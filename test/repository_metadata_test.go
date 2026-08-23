@@ -145,6 +145,49 @@ func TestMarkdownRelativeLinksResolve(t *testing.T) {
 	}
 }
 
+func TestReleaseNoteLinksAreSafeInGitHubReleaseBodies(t *testing.T) {
+	root := repositoryRoot(t)
+	paths, err := filepath.Glob(filepath.Join(root, "docs", "release-notes-v*.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(paths) == 0 {
+		t.Fatal("no versioned release notes found")
+	}
+
+	link := regexp.MustCompile(`!?\[[^\]]*\]\(([^)]+)\)`)
+	for _, path := range paths {
+		content, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		inFence := false
+		for lineNumber, line := range strings.Split(string(content), "\n") {
+			trimmed := strings.TrimSpace(line)
+			if strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~") {
+				inFence = !inFence
+				continue
+			}
+			if inFence {
+				continue
+			}
+
+			for _, match := range link.FindAllStringSubmatch(line, -1) {
+				target := strings.TrimSpace(match[1])
+				lower := strings.ToLower(target)
+				if strings.HasPrefix(lower, "https://") ||
+					strings.HasPrefix(lower, "http://") ||
+					strings.HasPrefix(lower, "mailto:") ||
+					strings.HasPrefix(target, "#") {
+					continue
+				}
+				t.Errorf("%s:%d uses release-body-unsafe relative link %q", filepath.ToSlash(path), lineNumber+1, target)
+			}
+		}
+	}
+}
+
 func repositoryRoot(t *testing.T) string {
 	t.Helper()
 	_, current, _, ok := runtime.Caller(0)
