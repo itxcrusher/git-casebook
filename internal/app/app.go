@@ -28,6 +28,9 @@ const extensionNamespace = "io.github.itxcrusher.git-casebook"
 
 type App struct {
 	CaseRoot string
+	// Progress optionally receives human-facing acquisition activity. It never
+	// affects canonical case state, evidence, or the machine-readable result.
+	Progress Progress
 }
 
 type Verification struct {
@@ -85,9 +88,13 @@ func (a App) Preserve(ctx context.Context) (model.Case, error) {
 	c.Policy.NetworkAfterAcquisition = false
 	usedNetwork := false
 	for _, declared := range policy.Sources {
+		a.report(acquisitionStartLine(declared.SourceID, declared.Locator))
 		acquired, acquireErr := preserve.Acquire(ctx, runner, store.Root, declared)
 		if acquired.NetworkUsed {
 			usedNetwork = true
+		}
+		if acquireErr == nil && acquired.MirrorPath != "" {
+			a.report(acquisitionDoneLine(declared.SourceID, directorySize(acquired.MirrorPath)))
 		}
 		source, item, buildErr := acquisitionSource(artifacts, declared, acquired, acquireErr)
 		if buildErr != nil {
@@ -323,6 +330,16 @@ func (a App) Verify(ctx context.Context) (Verification, error) {
 	}
 	_ = store.AppendEvent(model.Event{EventID: eventID("verification"), Kind: "CASE_VERIFIED", Timestamp: now(), Actor: c.Operator.Identifier, Details: map[string]any{"status": c.Status, "reason_count": len(reasons)}})
 	return Verification{Ready: len(reasons) == 0, Status: c.Status, Reasons: reasons}, nil
+}
+
+// LoadCase reads canonical case state for read-only presentation. It performs
+// no acquisition, analysis, or mutation.
+func (a App) LoadCase() (model.Case, error) {
+	store, err := casefile.Open(a.CaseRoot)
+	if err != nil {
+		return model.Case{}, err
+	}
+	return store.LoadCase()
 }
 
 func (a App) Report() (string, error) {
