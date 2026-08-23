@@ -64,6 +64,11 @@ func run(raw []string) int {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 	application := app.App{CaseRoot: global.caseRoot}
+	if !global.jsonOutput {
+		// Acquisition can transfer a lot before it returns. Progress goes to
+		// stderr so stdout carries only the result.
+		application.Progress = func(line string) { fmt.Fprintln(os.Stderr, line) }
+	}
 
 	switch args[0] {
 	case "case":
@@ -132,7 +137,9 @@ func run(raw []string) int {
 		if err != nil {
 			return fail(global, "OPERATION_FAILED", err, 1)
 		}
-		return success(global, map[string]any{"case_id": c.CaseID, "relationship_count": len(c.Relationships)}, fmt.Sprintf("Created %d directional relationship record(s)", len(c.Relationships)))
+		return success(global, map[string]any{"case_id": c.CaseID, "relationship_count": len(c.Relationships)},
+			fmt.Sprintf("Created %d directional relationship record(s)", len(c.Relationships)),
+			app.SummaryLines(c)...)
 	case "refs":
 		if len(args) != 2 || args[1] != "plan" {
 			return fail(global, "USAGE", fmt.Errorf("expected 'refs plan'"), 2)
@@ -182,7 +189,13 @@ func run(raw []string) int {
 		if !verification.Ready {
 			message = "Investigation complete with fail-closed incomplete evidence"
 		}
-		return success(global, verification, message)
+		var detail []string
+		if !global.jsonOutput {
+			if c, loadErr := application.LoadCase(); loadErr == nil {
+				detail = app.SummaryLines(c)
+			}
+		}
+		return success(global, verification, message, detail...)
 	default:
 		return fail(global, "USAGE", fmt.Errorf("unknown command %q", args[0]), 2)
 	}
@@ -212,15 +225,21 @@ func extractGlobals(args []string) ([]string, globalOptions, error) {
 	return result, options, nil
 }
 
-func success(options globalOptions, value any, message string) int {
+// success prints the machine result under --json and the human result
+// otherwise. Detail lines are human presentation only and are never added to
+// the JSON payload, so the machine contract stays byte-identical.
+func success(options globalOptions, value any, message string, detail ...string) int {
 	if options.jsonOutput {
 		b, err := json.Marshal(value)
 		if err != nil {
 			return fail(options, "ENCODING_FAILED", err, 1)
 		}
 		fmt.Println(string(b))
-	} else {
-		fmt.Println(message)
+		return 0
+	}
+	fmt.Println(message)
+	for _, line := range detail {
+		fmt.Println(line)
 	}
 	return 0
 }
