@@ -44,4 +44,5 @@ go install github.com/itxcrusher/git-casebook/cmd/git-casebook@v0.1.0
 ## Compatibility
 
 The binary is pre-1.0 and the evidence schema is independently versioned. Review
-[versioning and compatibility](versioning.md) before integrating machine output.
+[versioning and compatibility](https://github.com/itxcrusher/git-casebook/blob/v0.1.0/docs/versioning.md)
+before integrating machine output.
