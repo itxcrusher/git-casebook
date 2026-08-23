@@ -55,6 +55,18 @@ developer-copy  SUPERSET  organization-copy
 The command writes canonical evidence below `review.case/`. It does not push or
 apply the proposed archival plan.
 
+## Testing on real repository sets
+
+GitCasebook v0.1 is looking for independent real cases involving inherited,
+duplicated, forked, mirrored, or otherwise historically uncertain repositories.
+If you run it on two or more real sources, share the outcome through the
+[real repository case form](https://github.com/itxcrusher/git-casebook/issues/new?template=real-case.yml).
+
+Useful reports include successful classifications as well as actionable
+fail-closed `UNKNOWN` results. Do not upload private repository contents,
+credentials, or sensitive case artifacts; summaries of the preservation question
+and the evidence that mattered are enough.
+
 ## What GitCasebook guarantees
 
 For supported complete Git sources, v0.1:
