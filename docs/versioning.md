@@ -16,7 +16,7 @@ The CLI and case evidence use one version resolver:
 1. release archives use an explicit build-time version;
 2. versioned module installs use the main-module version embedded by Go; and
 3. untagged, pseudo-version, dirty, or otherwise unversioned source builds report
-   the development value `0.1.0-dev`.
+   the development value `0.1.1-dev`.
 
 The displayed form omits Go's leading `v`, so module version `v0.1.0` is recorded
 and printed as `0.1.0`.
@@ -24,7 +24,7 @@ and printed as `0.1.0`.
 ## Evidence schema versions
 
 The evidence schema has its own semantic version and is not tied to the binary
-version. v0.1.0 writes case schema `1.0.0`.
+version. Both v0.1.0 and v0.1.1 write case schema `1.0.0`.
 
 - Schema patch versions may tighten validation or clarify representation without
   changing meaning.

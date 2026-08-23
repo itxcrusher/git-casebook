@@ -69,21 +69,21 @@ jobs:
           go-version-file: go.mod
           cache-dependency-path: go.sum
 
-      - name: Build v0.1.0 candidate artifacts
+      - name: Build v0.1.1 candidate artifacts
         shell: pwsh
-        run: ./scripts/build-release.ps1 -Version v0.1.0
+        run: ./scripts/build-release.ps1 -Version v0.1.1
 
       - name: Verify artifact set and SHA-256 checksums
         shell: pwsh
-        run: ./scripts/verify-release.ps1 -Version v0.1.0
+        run: ./scripts/verify-release.ps1 -Version v0.1.1
 
       - name: Execute Linux candidate
         shell: bash
         run: |
           smoke_dir="$(mktemp -d)"
           trap 'rm -rf "$smoke_dir"' EXIT
-          tar -xzf ./dist/git-casebook_0.1.0_linux_amd64.tar.gz -C "$smoke_dir"
-          test "$("$smoke_dir/git-casebook" --version)" = "0.1.0"
+          tar -xzf ./dist/git-casebook_0.1.1_linux_amd64.tar.gz -C "$smoke_dir"
+          test "$("$smoke_dir/git-casebook" --version)" = "0.1.1"
           git -c init.defaultBranch=main init "$smoke_dir/synthetic-source"
           git -C "$smoke_dir/synthetic-source" config user.name "Synthetic Test"
           git -C "$smoke_dir/synthetic-source" config user.email "synthetic@example.invalid"
@@ -91,12 +91,12 @@ jobs:
           git -C "$smoke_dir/synthetic-source" add README.md
           git -C "$smoke_dir/synthetic-source" commit -m "synthetic fixture"
           "$smoke_dir/git-casebook" investigate "$smoke_dir/synthetic-source" --case "$smoke_dir/version.case"
-          python3 -c 'import json, sys; assert json.load(open(sys.argv[1], encoding="utf-8"))["tool"]["version"] == "0.1.0"' "$smoke_dir/version.case/case.json"
+          python3 -c 'import json, sys; assert json.load(open(sys.argv[1], encoding="utf-8"))["tool"]["version"] == "0.1.1"' "$smoke_dir/version.case/case.json"
 
       - name: Verify publishable asset boundary
         shell: bash
         run: |
-          mapfile -t assets < <(pwsh -NoProfile -File ./scripts/verify-release.ps1 -Version v0.1.0 -ListPublishAssets)
+          mapfile -t assets < <(pwsh -NoProfile -File ./scripts/verify-release.ps1 -Version v0.1.1 -ListPublishAssets)
           test "${#assets[@]}" -eq 6
           for asset in "${assets[@]}"; do
             test -f "$asset"

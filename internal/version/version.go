@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const Development = "0.1.0-dev"
+const Development = "0.1.1-dev"
 
 // Override is set by the release build. Ordinary versioned module installs use
 // the main-module version embedded by the Go toolchain instead.
