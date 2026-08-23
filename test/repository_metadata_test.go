@@ -10,6 +10,8 @@ import (
 	"testing"
 
 	"go.yaml.in/yaml/v3"
+
+	"github.com/itxcrusher/git-casebook/internal/version"
 )
 
 func TestRepositoryYAMLIsSyntacticallyValid(t *testing.T) {
@@ -204,4 +206,29 @@ func readRepositoryFile(t *testing.T, root, relative string) []byte {
 		t.Fatalf("read %s: %v", relative, err)
 	}
 	return content
+}
+
+// The release workflow resolves its notes as docs/release-notes-<tag>.md only
+// after the immutable tag has been pushed. A mismatch there already cost one
+// v0.1.0 recovery cycle, so couple the filename to the version constant and
+// fail on dev instead of after tagging.
+func TestReleaseNotesExistForTheCurrentVersionLine(t *testing.T) {
+	root := repositoryRoot(t)
+	current := strings.TrimSuffix(version.Development, "-dev")
+	if current == version.Development {
+		t.Fatalf("development version %q does not carry the expected -dev suffix", version.Development)
+	}
+
+	relative := filepath.Join("docs", "release-notes-v"+current+".md")
+	if _, err := os.Stat(filepath.Join(root, relative)); err != nil {
+		t.Fatalf("release workflow will look for docs/release-notes-v%s.md and it is missing: %v", current, err)
+	}
+
+	if !bytes.Contains(readRepositoryFile(t, root, relative), []byte("@v"+current)) {
+		t.Errorf("docs/release-notes-v%s.md does not document the @v%s install command", current, current)
+	}
+
+	if !bytes.Contains(readRepositoryFile(t, root, "README.md"), []byte("@v"+current)) {
+		t.Errorf("README.md does not advertise @v%s; it ships inside every release archive", current)
+	}
 }
