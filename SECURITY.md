@@ -14,9 +14,8 @@ Use a private GitHub security advisory when that feature is available to you:
 
 Do not place credentials, private repository contents, crafted private objects,
 or sensitive case evidence in a public issue. If the private advisory route is
-unavailable while this repository is private, contact the repository owner
-through an already established private channel and include only the minimum
-reproduction material.
+unavailable, contact the repository owner through an already established private
+channel and include only the minimum reproduction material.
 
 Please include the affected command, operating system, Git version, expected
 boundary, observed behavior, and a synthetic reproduction where possible.
