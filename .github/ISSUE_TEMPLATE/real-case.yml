@@ -1,0 +1,80 @@
+name: Real repository case
+description: Share what GitCasebook found on a real inherited, duplicated, forked, or mirrored repository set.
+title: "case: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing GitCasebook on a real case. Do not attach private repository contents, credentials, or sensitive case artifacts. Summaries are enough.
+  - type: input
+    id: version
+    attributes:
+      label: Tool version
+      placeholder: 0.1.1
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Investigation outcome
+      options:
+        - EXACT
+        - SUBSET or SUPERSET
+        - DIVERGED
+        - DISJOINT
+        - UNKNOWN
+        - Mixed results across more than two sources
+    validations:
+      required: true
+  - type: input
+    id: source-count
+    attributes:
+      label: Number of repositories or refs compared
+      placeholder: "3"
+    validations:
+      required: true
+  - type: textarea
+    id: uncertainty
+    attributes:
+      label: What was uncertain before you ran GitCasebook?
+      description: Describe the preservation question without sharing private repository contents.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: What evidence mattered?
+      description: Mention useful classifications, unique commits or refs, UNKNOWN reasons, mapping collisions, or other report evidence.
+    validations:
+      required: true
+  - type: dropdown
+    id: decision-impact
+    attributes:
+      label: Did the evidence change or increase confidence in a preservation decision?
+      options:
+        - Yes, it changed the decision
+        - Yes, it increased confidence in the decision
+        - No, but the evidence was still useful
+        - No, the evidence was not useful
+    validations:
+      required: true
+  - type: textarea
+    id: friction
+    attributes:
+      label: Installation or workflow friction
+      description: Include failed installation attempts, unsupported Git or ref shapes, confusing output, or anything that slowed the case down.
+  - type: textarea
+    id: follow-up
+    attributes:
+      label: What should GitCasebook handle better next time?
+      description: Optional. Concrete failures and missing shapes are more useful than feature wishlists.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: GitCasebook did not execute or mutate the repositories I asked it to inspect.
+          required: true
+        - label: This report contains no credentials, private repository contents, or sensitive case artifacts.
+          required: true
