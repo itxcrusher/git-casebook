@@ -8,8 +8,32 @@ anything.
 
 **Preserve. Compare. Prove. Plan.**
 
-Status: **pre-1.0**. Published versions are listed in
+Status: **pre-1.0, feature-frozen**. Published versions are listed in
 [GitHub Releases](https://github.com/itxcrusher/git-casebook/releases).
+
+## Maintenance status
+
+GitCasebook does what its v0.1 contract describes and is not adding features. It
+is maintained by one person, on a best-effort basis, for:
+
+- correctness and safety defects;
+- output and reporting that misleads, or that hides the evidence behind a
+  result;
+- installation and first-run friction;
+- security reports;
+- dependency and toolchain hygiene;
+- Git or ref shapes it fails to handle correctly.
+
+That list is deliberately wider than bug fixes. v0.1.1 came entirely from
+real-world friction of exactly this kind, so reports about confusing output or a
+result you could not interpret are in scope and wanted.
+
+New capability is out of scope unless a real case demonstrates the need. The
+capabilities under [what it deliberately does not do](#what-it-deliberately-does-not-do),
+and Levels 3-7 in [the safety model](docs/safety-model.md), are not on a roadmap.
+
+Issues are open, and a real case report or a bug is genuinely welcome. Expect a
+considered reply rather than a fast one, and no service commitment.
 
 ## The problem
 
@@ -185,7 +209,8 @@ not just default branches:
 
 ## Current limitations
 
-- Authenticated remote acquisition has no dedicated credential workflow yet.
+- Authenticated remote acquisition has no dedicated credential workflow, and
+  none is planned.
 - Git SHA-1 and SHA-256 repositories are inventoried, but incompatible object
   formats cannot receive a confident cross-format relationship.
 - LFS pointer/config state is reported; LFS bodies are not fetched.
