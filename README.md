@@ -8,8 +8,24 @@ anything.
 
 **Preserve. Compare. Prove. Plan.**
 
-Status: **pre-1.0**. Published versions are listed in
+Status: **pre-1.0, feature-frozen.** Published versions are listed in
 [GitHub Releases](https://github.com/itxcrusher/git-casebook/releases).
+
+## Maintenance status
+
+GitCasebook does what its v0.1 contract describes and is not adding features. It
+is maintained by one person, on a best-effort basis, for:
+
+- correctness and safety defects;
+- security reports;
+- dependency and toolchain hygiene;
+- Git or ref shapes it fails to handle correctly.
+
+New capability is out of scope unless a real case demonstrates the need. The
+deferred lifecycle stages named below are not on a roadmap.
+
+Issues are open, and a real case report or a bug is genuinely welcome. Expect a
+considered reply rather than a fast one, and no service commitment.
 
 ## The problem
 
